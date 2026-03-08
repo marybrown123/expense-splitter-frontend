@@ -2,22 +2,25 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import {
+  addGroupMember,
   getGroupBalances,
   getGroupById,
+  getGroupMembers,
   getSettlementSuggestions,
 } from "../api/groups";
 import { createExpense, deleteExpense, getExpensesByGroupId } from "../api/expenses";
+
 import AddExpenseForm from "../components/AddExpenseForm";
 import ExpenseList from "../components/ExpenseList";
+import AddMemberForm from "../components/AddMemberForm";
+import MemberList from "../components/MemberList";
 
 import type { Group, GroupBalance, SettlementSuggestion } from "../types/group";
 import type { CreateExpenseRequest, Expense } from "../types/expense";
-
-import { addGroupMember, getGroupMembers } from "../api/groups";
-import AddMemberForm from "../components/AddMemberForm";
-import MemberList from "../components/MemberList";
 import type { GroupMember } from "../types/member";
+
 import { formatCurrency } from "../utils/formatCurrency";
+import { getUserIdFromToken } from "../utils/getUserFromToken";
 
 function GroupDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -26,9 +29,16 @@ function GroupDetailsPage() {
   const [balances, setBalances] = useState<GroupBalance[]>([]);
   const [suggestions, setSuggestions] = useState<SettlementSuggestion[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [members, setMembers] = useState<GroupMember[]>([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [members, setMembers] = useState<GroupMember[]>([]);
+
+  const token = localStorage.getItem("token");
+  const currentUserId = token ? getUserIdFromToken(token) : null;
+
+  const isOwner = members.some(
+    (member) => member.userId === currentUserId && member.role === "Owner"
+  );
 
   const loadGroupData = async (groupId: string) => {
     const [groupData, balancesData, suggestionsData, expensesData, membersData] =
@@ -111,8 +121,10 @@ function GroupDetailsPage() {
   if (error && !group) {
     return (
       <div>
-        <p>{error}</p>
-        <Link to="/dashboard">Back to dashboard</Link>
+        <p className="error">{error}</p>
+        <Link to="/dashboard" className="back-link">
+          Back to dashboard
+        </Link>
       </div>
     );
   }
@@ -121,7 +133,9 @@ function GroupDetailsPage() {
     return (
       <div>
         <p>Group not found.</p>
-        <Link to="/dashboard">Back to dashboard</Link>
+        <Link to="/dashboard" className="back-link">
+          Back to dashboard
+        </Link>
       </div>
     );
   }
@@ -131,6 +145,7 @@ function GroupDetailsPage() {
       <Link to="/dashboard" className="back-link">
         Back to dashboard
       </Link>
+
       <div className="page-header">
         <h1>{group.name}</h1>
         <div className="meta">
@@ -148,9 +163,9 @@ function GroupDetailsPage() {
         {balances.length === 0 ? (
           <p>No balances yet.</p>
         ) : (
-          <div>
+          <div className="card-list">
             {balances.map((item) => (
-              <div key={item.userId}>
+              <div key={item.userId} className="card">
                 <h3>{item.username}</h3>
                 <p>Paid: {formatCurrency(item.paid, group.currency)}</p>
                 <p>Owed: {formatCurrency(item.owed, group.currency)}</p>
@@ -167,13 +182,13 @@ function GroupDetailsPage() {
         {suggestions.length === 0 ? (
           <p>No settlement suggestions.</p>
         ) : (
-          <div>
+          <div className="card-list">
             {suggestions.map((item, index) => (
-              <div key={`${item.fromUserId}-${item.toUserId}-${index}`}>
+              <div key={`${item.fromUserId}-${item.toUserId}-${index}`} className="card">
                 <p>
                   {item.fromUsername} → {item.toUsername}
                 </p>
-                <p>Amount: {item.amount.toFixed(2)}</p>
+                <p>Amount: {formatCurrency(item.amount, group.currency)}</p>
               </div>
             ))}
           </div>
@@ -186,15 +201,23 @@ function GroupDetailsPage() {
 
       <section>
         <h2>Expenses</h2>
-          <ExpenseList
-            expenses={expenses}
-            members={members}
-            currency={group.currency}
-            onDelete={handleDeleteExpense}
-          />
+        <ExpenseList
+          expenses={expenses}
+          members={members}
+          currency={group.currency}
+          onDelete={handleDeleteExpense}
+        />
       </section>
+
       <section>
-        <AddMemberForm onSubmit={handleAddMember} />
+        <h2>Members</h2>
+
+        {isOwner ? (
+          <AddMemberForm onSubmit={handleAddMember} />
+        ) : (
+          <p className="muted">Only the group owner can add new members.</p>
+        )}
+
         <MemberList members={members} />
       </section>
     </div>
