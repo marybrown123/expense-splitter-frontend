@@ -63,6 +63,7 @@ function RegisterPage() {
             id="register-password"
             type="password"
             value={password}
+            minLength={6}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
@@ -73,7 +74,11 @@ function RegisterPage() {
         </button>
       </form>
 
-      {error && <p>{error}</p>}
+      {error && (
+        <p style={{ color: "red" }}>
+          {error}
+        </p>
+      )}
 
       <p>
         Already have an account? <Link to="/">Login</Link>
