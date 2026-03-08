@@ -25,25 +25,30 @@ function AddMemberForm({ onSubmit }: AddMemberFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Add member</h2>
+    <form className="form" onSubmit={handleSubmit}>
+      <div className="form-group">
+        <label className="label" htmlFor="member-email">
+          Member email
+        </label>
 
-      <div>
-        <label htmlFor="member-email">Email</label>
         <input
           id="member-email"
+          className="input"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          placeholder="user@example.com"
           required
         />
       </div>
 
-      {error && <p>{error}</p>}
+      {error && <div className="error-box">{error}</div>}
 
-      <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Adding..." : "Add member"}
-      </button>
+      <div className="actions">
+        <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Adding member..." : "Add member"}
+        </button>
+      </div>
     </form>
   );
 }

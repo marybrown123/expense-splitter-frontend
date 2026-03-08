@@ -31,58 +31,83 @@ function RegisterPage() {
   };
 
   return (
-    <div>
-      <h1>Register</h1>
+    <div className="page-shell">
+      <div className="page-container" style={{ maxWidth: "520px" }}>
+        <div className="card">
+          <div className="page-header" style={{ marginBottom: "20px" }}>
+            <div>
+              <h1 className="page-title">Register</h1>
+              <p className="page-subtitle">
+                Create an account and start managing shared expenses.
+              </p>
+            </div>
+          </div>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="username">Username</label>
-          <input
-            id="username"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
+          {error && (
+            <div style={{ marginBottom: "16px" }}>
+              <div className="error-box">{error}</div>
+            </div>
+          )}
+
+          <form className="form" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label className="label" htmlFor="username">
+                Username
+              </label>
+              <input
+                id="username"
+                className="input"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="label" htmlFor="register-email">
+                Email
+              </label>
+              <input
+                id="register-email"
+                className="input"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="label" htmlFor="register-password">
+                Password
+              </label>
+              <input
+                id="register-password"
+                className="input"
+                type="password"
+                value={password}
+                minLength={6}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <button className="btn btn-primary" type="submit" disabled={isLoading}>
+              {isLoading ? "Creating account..." : "Create account"}
+            </button>
+          </form>
+
+          <div className="divider" />
+
+          <p className="text-muted" style={{ margin: 0 }}>
+            Already have an account?{" "}
+            <Link to="/" style={{ color: "var(--primary)", fontWeight: 600 }}>
+              Login
+            </Link>
+          </p>
         </div>
-
-        <div>
-          <label htmlFor="register-email">Email</label>
-          <input
-            id="register-email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-
-        <div>
-          <label htmlFor="register-password">Password</label>
-          <input
-            id="register-password"
-            type="password"
-            value={password}
-            minLength={6}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? "Creating account..." : "Create account"}
-        </button>
-      </form>
-
-      {error && (
-        <p style={{ color: "red" }}>
-          {error}
-        </p>
-      )}
-
-      <p>
-        Already have an account? <Link to="/">Login</Link>
-      </p>
+      </div>
     </div>
   );
 }
