@@ -110,14 +110,15 @@ function AddExpenseForm({ groupId, onSubmit }: Props) {
         <div className="checkbox-list">
         <label>Participants</label>
         {members.map((member) => (
-            <label key={member.userId} className="checkbox-item">
-            <input
-                type="checkbox"
-                checked={selectedParticipants.includes(member.userId)}
-                onChange={() => toggleParticipant(member.userId)}
-            />
-            {member.username}
-            </label>
+    <label key={member.userId} className="checkbox-item">
+    <input
+        type="checkbox"
+        disabled={member.userId === paidByUserId}
+        checked={selectedParticipants.includes(member.userId)}
+        onChange={() => toggleParticipant(member.userId)}
+    />
+    {member.username} {member.userId === paidByUserId && "(payer)"}
+    </label>
         ))}
         </div>
 
