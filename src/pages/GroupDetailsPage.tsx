@@ -115,111 +115,227 @@ function GroupDetailsPage() {
   };
 
   if (isLoading) {
-    return <p>Loading group details...</p>;
+    return (
+      <div className="page-shell">
+        <div className="page-container">
+          <p className="text-muted">Loading group details...</p>
+        </div>
+      </div>
+    );
   }
 
   if (error && !group) {
     return (
-      <div>
-        <p className="error">{error}</p>
-        <Link to="/dashboard" className="back-link">
-          Back to dashboard
-        </Link>
+      <div className="page-shell">
+        <div className="page-container">
+          <div className="card">
+            <div className="error-box">{error}</div>
+
+            <div className="actions" style={{ marginTop: "16px" }}>
+              <Link to="/dashboard" className="btn btn-secondary">
+                Back to dashboard
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!group) {
     return (
-      <div>
-        <p>Group not found.</p>
-        <Link to="/dashboard" className="back-link">
-          Back to dashboard
-        </Link>
+      <div className="page-shell">
+        <div className="page-container">
+          <div className="card">
+            <p className="text-muted">Group not found.</p>
+
+            <div className="actions" style={{ marginTop: "16px" }}>
+              <Link to="/dashboard" className="btn btn-secondary">
+                Back to dashboard
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <Link to="/dashboard" className="back-link">
-        Back to dashboard
-      </Link>
+    <div className="page-shell">
+      <div className="page-container">
+        <div className="actions" style={{ marginBottom: "20px" }}>
+          <Link to="/dashboard" className="btn btn-secondary">
+            Back to dashboard
+          </Link>
+        </div>
 
-      <div className="page-header">
-        <h1>{group.name}</h1>
-        <div className="meta">
-          <p>Currency: {group.currency}</p>
-          <p>Owner: {group.ownerName}</p>
-          <p>Created at: {new Date(group.createdAt).toLocaleString()}</p>
+        <div className="card" style={{ marginBottom: "20px" }}>
+          <div className="page-header" style={{ marginBottom: 0 }}>
+            <div>
+              <h1 className="page-title">{group.name}</h1>
+              <p className="page-subtitle">
+                Shared expense tracking for this group.
+              </p>
+            </div>
+
+            <span className="badge">{group.currency}</span>
+          </div>
+
+          <div className="divider" />
+
+          <div className="grid grid-3">
+            <div>
+              <p className="text-muted" style={{ marginBottom: "6px" }}>
+                Owner
+              </p>
+              <strong>{group.ownerName}</strong>
+            </div>
+
+            <div>
+              <p className="text-muted" style={{ marginBottom: "6px" }}>
+                Created at
+              </p>
+              <strong>{new Date(group.createdAt).toLocaleString()}</strong>
+            </div>
+
+            <div>
+              <p className="text-muted" style={{ marginBottom: "6px" }}>
+                Members
+              </p>
+              <strong>{members.length}</strong>
+            </div>
+          </div>
+        </div>
+
+        {error && (
+          <div style={{ marginBottom: "20px" }}>
+            <div className="error-box">{error}</div>
+          </div>
+        )}
+
+        <div className="grid grid-2" style={{ marginBottom: "20px" }}>
+          <div className="card">
+            <h2 className="section-title">Balances</h2>
+            <p className="section-subtitle">
+              Overview of what each member paid, owes and their final balance.
+            </p>
+
+            {balances.length === 0 ? (
+              <div className="empty-state">No balances yet.</div>
+            ) : (
+              <div
+                style={{
+                  maxHeight: "420px",
+                  overflowY: "auto",
+                  paddingRight: "6px",
+                }}
+              >
+                <div className="grid">
+                  {balances.map((item) => (
+                    <div key={item.userId} className="card">
+                      <h3 style={{ marginTop: 0 }}>{item.username}</h3>
+
+                      <p>
+                        <strong>Paid:</strong>{" "}
+                        {formatCurrency(item.paid, group.currency)}
+                      </p>
+
+                      <p>
+                        <strong>Owed:</strong>{" "}
+                        {formatCurrency(item.owed, group.currency)}
+                      </p>
+
+                      <p style={{ marginBottom: 0 }}>
+                        <strong>Balance:</strong>{" "}
+                        {formatCurrency(item.balance, group.currency)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="card">
+            <h2 className="section-title">Settlement suggestions</h2>
+            <p className="section-subtitle">
+              Suggested transfers to settle debts inside the group.
+            </p>
+
+            {suggestions.length === 0 ? (
+              <div className="empty-state">No settlement suggestions.</div>
+            ) : (
+              <div
+                style={{
+                  maxHeight: "420px",
+                  overflowY: "auto",
+                  paddingRight: "6px",
+                }}
+              >
+                <div className="grid">
+                  {suggestions.map((item, index) => (
+                    <div
+                      key={`${item.fromUserId}-${item.toUserId}-${index}`}
+                      className="card"
+                    >
+                      <p style={{ marginTop: 0 }}>
+                        <strong>{item.fromUsername}</strong> →{" "}
+                        <strong>{item.toUsername}</strong>
+                      </p>
+                      <p style={{ marginBottom: 0 }}>
+                        <strong>Amount:</strong>{" "}
+                        {formatCurrency(item.amount, group.currency)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="card" style={{ marginBottom: "20px" }}>
+          <h2 className="section-title">Add expense</h2>
+          <p className="section-subtitle">
+            Add a new shared expense for this group.
+          </p>
+
+          <AddExpenseForm groupId={group.id} onSubmit={handleCreateExpense} />
+        </div>
+
+        <div className="card" style={{ marginBottom: "20px" }}>
+          <h2 className="section-title">Expenses</h2>
+          <p className="section-subtitle">
+            All expenses added to this group.
+          </p>
+
+          <ExpenseList
+            expenses={expenses}
+            members={members}
+            currency={group.currency}
+            onDelete={handleDeleteExpense}
+          />
+        </div>
+
+        <div className="card">
+          <h2 className="section-title">Members</h2>
+          <p className="section-subtitle">
+            Group participants and their roles.
+          </p>
+
+          {isOwner ? (
+            <div style={{ marginBottom: "20px" }}>
+              <AddMemberForm onSubmit={handleAddMember} />
+            </div>
+          ) : (
+            <div style={{ marginBottom: "20px" }} className="empty-state">
+              Only the group owner can add new members.
+            </div>
+          )}
+
+          <MemberList members={members} />
         </div>
       </div>
-
-      {error && <p className="error">{error}</p>}
-
-      <section>
-        <h2>Balances</h2>
-
-        {balances.length === 0 ? (
-          <p>No balances yet.</p>
-        ) : (
-          <div className="card-list">
-            {balances.map((item) => (
-              <div key={item.userId} className="card">
-                <h3>{item.username}</h3>
-                <p>Paid: {formatCurrency(item.paid, group.currency)}</p>
-                <p>Owed: {formatCurrency(item.owed, group.currency)}</p>
-                <p>Balance: {formatCurrency(item.balance, group.currency)}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <section>
-        <h2>Settlement suggestions</h2>
-
-        {suggestions.length === 0 ? (
-          <p>No settlement suggestions.</p>
-        ) : (
-          <div className="card-list">
-            {suggestions.map((item, index) => (
-              <div key={`${item.fromUserId}-${item.toUserId}-${index}`} className="card">
-                <p>
-                  {item.fromUsername} → {item.toUsername}
-                </p>
-                <p>Amount: {formatCurrency(item.amount, group.currency)}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <section>
-        <AddExpenseForm groupId={group.id} onSubmit={handleCreateExpense} />
-      </section>
-
-      <section>
-        <h2>Expenses</h2>
-        <ExpenseList
-          expenses={expenses}
-          members={members}
-          currency={group.currency}
-          onDelete={handleDeleteExpense}
-        />
-      </section>
-
-      <section>
-        <h2>Members</h2>
-
-        {isOwner ? (
-          <AddMemberForm onSubmit={handleAddMember} />
-        ) : (
-          <p className="muted">Only the group owner can add new members.</p>
-        )}
-
-        <MemberList members={members} />
-      </section>
     </div>
   );
 }

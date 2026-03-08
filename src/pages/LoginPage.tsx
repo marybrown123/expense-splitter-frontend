@@ -30,42 +30,68 @@ function LoginPage() {
   };
 
   return (
-    <div>
-      <h1>Login</h1>
+    <div className="page-shell">
+      <div className="page-container" style={{ maxWidth: "520px" }}>
+        <div className="card">
+          <div className="page-header" style={{ marginBottom: "20px" }}>
+            <div>
+              <h1 className="page-title">Login</h1>
+              <p className="page-subtitle">
+                Sign in to manage your shared expenses and groups.
+              </p>
+            </div>
+          </div>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          {error && (
+            <div style={{ marginBottom: "16px" }}>
+              <div className="error-box">{error}</div>
+            </div>
+          )}
+
+          <form className="form" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label className="label" htmlFor="email">
+                Email
+              </label>
+              <input
+                id="email"
+                className="input"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="label" htmlFor="password">
+                Password
+              </label>
+              <input
+                id="password"
+                className="input"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <button className="btn btn-primary" type="submit" disabled={isLoading}>
+              {isLoading ? "Logging in..." : "Login"}
+            </button>
+          </form>
+
+          <div className="divider" />
+
+          <p className="text-muted" style={{ margin: 0 }}>
+            Don&apos;t have an account?{" "}
+            <Link to="/register" style={{ color: "var(--primary)", fontWeight: 600 }}>
+              Register
+            </Link>
+          </p>
         </div>
-
-        <div>
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? "Logging in..." : "Login"}
-        </button>
-      </form>
-
-      {error && <p>{error}</p>}
-
-      <p>
-        Don&apos;t have an account? <Link to="/register">Register</Link>
-      </p>
+      </div>
     </div>
   );
 }
