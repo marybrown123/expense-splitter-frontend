@@ -17,6 +17,7 @@ import { addGroupMember, getGroupMembers } from "../api/groups";
 import AddMemberForm from "../components/AddMemberForm";
 import MemberList from "../components/MemberList";
 import type { GroupMember } from "../types/member";
+import { formatCurrency } from "../utils/formatCurrency";
 
 function GroupDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -146,9 +147,9 @@ function GroupDetailsPage() {
             {balances.map((item) => (
               <div key={item.userId}>
                 <h3>{item.username}</h3>
-                <p>Paid: {item.paid.toFixed(2)}</p>
-                <p>Owed: {item.owed.toFixed(2)}</p>
-                <p>Balance: {item.balance.toFixed(2)}</p>
+                <p>Paid: {formatCurrency(item.paid, group.currency)}</p>
+                <p>Owed: {formatCurrency(item.owed, group.currency)}</p>
+                <p>Balance: {formatCurrency(item.balance, group.currency)}</p>
               </div>
             ))}
           </div>
@@ -183,6 +184,7 @@ function GroupDetailsPage() {
           <ExpenseList
             expenses={expenses}
             members={members}
+            currency={group.currency}
             onDelete={handleDeleteExpense}
           />
       </section>
