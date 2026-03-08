@@ -6,7 +6,17 @@ import {
   getGroupById,
   getSettlementSuggestions,
 } from "../api/groups";
+import { createExpense, deleteExpense, getExpensesByGroupId } from "../api/expenses";
+import AddExpenseForm from "../components/AddExpenseForm";
+import ExpenseList from "../components/ExpenseList";
+
 import type { Group, GroupBalance, SettlementSuggestion } from "../types/group";
+import type { CreateExpenseRequest, Expense } from "../types/expense";
+
+import { addGroupMember, getGroupMembers } from "../api/groups";
+import AddMemberForm from "../components/AddMemberForm";
+import MemberList from "../components/MemberList";
+import type { GroupMember } from "../types/member";
 
 function GroupDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -14,13 +24,30 @@ function GroupDetailsPage() {
   const [group, setGroup] = useState<Group | null>(null);
   const [balances, setBalances] = useState<GroupBalance[]>([]);
   const [suggestions, setSuggestions] = useState<SettlementSuggestion[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [members, setMembers] = useState<GroupMember[]>([]);
 
-console.log(balances);
+  const loadGroupData = async (groupId: string) => {
+    const [groupData, balancesData, suggestionsData, expensesData, membersData] =
+      await Promise.all([
+        getGroupById(groupId),
+        getGroupBalances(groupId),
+        getSettlementSuggestions(groupId),
+        getExpensesByGroupId(groupId),
+        getGroupMembers(groupId),
+      ]);
+
+    setGroup(groupData);
+    setBalances(balancesData);
+    setSuggestions(suggestionsData);
+    setExpenses(expensesData);
+    setMembers(membersData);
+  };
 
   useEffect(() => {
-    const loadGroupData = async () => {
+    const fetchData = async () => {
       if (!id) {
         setError("Group id is missing.");
         setIsLoading(false);
@@ -29,16 +56,7 @@ console.log(balances);
 
       try {
         setError("");
-
-        const [groupData, balancesData, suggestionsData] = await Promise.all([
-          getGroupById(id),
-          getGroupBalances(id),
-          getSettlementSuggestions(id),
-        ]);
-
-        setGroup(groupData);
-        setBalances(balancesData);
-        setSuggestions(suggestionsData);
+        await loadGroupData(id);
       } catch {
         setError("Failed to load group details.");
       } finally {
@@ -46,14 +64,50 @@ console.log(balances);
       }
     };
 
-    loadGroupData();
+    fetchData();
   }, [id]);
+
+  const handleAddMember = async (email: string) => {
+    if (!id) return;
+
+    try {
+      setError("");
+      await addGroupMember(id, { email });
+      await loadGroupData(id);
+    } catch {
+      setError("Failed to add member.");
+    }
+  };
+
+  const handleCreateExpense = async (data: CreateExpenseRequest) => {
+    if (!id) return;
+
+    try {
+      setError("");
+      await createExpense(data);
+      await loadGroupData(id);
+    } catch {
+      setError("Failed to create expense.");
+    }
+  };
+
+  const handleDeleteExpense = async (expenseId: string) => {
+    if (!id) return;
+
+    try {
+      setError("");
+      await deleteExpense(expenseId);
+      await loadGroupData(id);
+    } catch {
+      setError("Failed to delete expense.");
+    }
+  };
 
   if (isLoading) {
     return <p>Loading group details...</p>;
   }
 
-  if (error) {
+  if (error && !group) {
     return (
       <div>
         <p>{error}</p>
@@ -79,6 +133,8 @@ console.log(balances);
       <p>Currency: {group.currency}</p>
       <p>Owner: {group.ownerName}</p>
       <p>Created at: {new Date(group.createdAt).toLocaleString()}</p>
+
+      {error && <p>{error}</p>}
 
       <section>
         <h2>Balances</h2>
@@ -116,6 +172,23 @@ console.log(balances);
             ))}
           </div>
         )}
+      </section>
+
+      <section>
+        <AddExpenseForm groupId={group.id} onSubmit={handleCreateExpense} />
+      </section>
+
+      <section>
+        <h2>Expenses</h2>
+          <ExpenseList
+            expenses={expenses}
+            members={members}
+            onDelete={handleDeleteExpense}
+          />
+      </section>
+      <section>
+        <AddMemberForm onSubmit={handleAddMember} />
+        <MemberList members={members} />
       </section>
     </div>
   );
