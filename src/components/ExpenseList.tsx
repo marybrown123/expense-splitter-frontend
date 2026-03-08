@@ -18,9 +18,9 @@ function ExpenseList({ expenses, members, currency, onDelete }: ExpenseListProps
   }
 
   return (
-    <div>
+    <div className="card-list">
       {expenses.map((expense) => (
-        <div key={expense.id}>
+        <div key={expense.id} className="card">
           <h3>{expense.title}</h3>
           <p>Amount: {formatCurrency(expense.amount, currency)}</p>
           <p>Paid by: {getUsernameById(expense.paidByUserId, members)}</p>
@@ -41,7 +41,12 @@ function ExpenseList({ expenses, members, currency, onDelete }: ExpenseListProps
             </div>
           )}
 
-          <button onClick={() => onDelete(expense.id)}>Delete expense</button>
+          <button
+            className="danger-button"
+            onClick={() => onDelete(expense.id)}
+          >
+            Delete expense
+          </button>
         </div>
       ))}
     </div>

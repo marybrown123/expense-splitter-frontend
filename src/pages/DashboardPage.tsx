@@ -61,7 +61,7 @@ function DashboardPage() {
   };
 
   return (
-    <div>
+    <div className="card-list">
       <h1>Dashboard</h1>
       <button onClick={handleLogout}>Logout</button>
 
@@ -105,7 +105,7 @@ function DashboardPage() {
       ) : (
         <div>
           {groups.map((group) => (
-            <div key={group.id}>
+        <div key={group.id} className="card">
               <h3>{group.name}</h3>
               <p>Currency: {group.currency}</p>
               <Link to={`/groups/${group.id}`}>Open group</Link>

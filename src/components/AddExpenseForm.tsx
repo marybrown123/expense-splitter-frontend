@@ -76,7 +76,7 @@ function AddExpenseForm({ groupId, onSubmit }: Props) {
     <form onSubmit={handleSubmit}>
       <h2>Add expense</h2>
 
-      <div>
+      <div className="inline-row">
         <label>Title</label>
         <input value={title} onChange={(e) => setTitle(e.target.value)} required />
       </div>
@@ -107,22 +107,20 @@ function AddExpenseForm({ groupId, onSubmit }: Props) {
         </select>
       </div>
 
-      <div>
+        <div className="checkbox-list">
         <label>Participants</label>
-
         {members.map((member) => (
-          <div key={member.userId}>
-            <label>
-              <input
-                type="checkbox"
-                checked={selectedParticipants.includes(member.userId)}
-                onChange={() => toggleParticipant(member.userId)}
-              />
-              {member.username}
-            </label>
-          </div>
+    <label key={member.userId} className="checkbox-item">
+    <input
+        type="checkbox"
+        disabled={member.userId === paidByUserId}
+        checked={selectedParticipants.includes(member.userId)}
+        onChange={() => toggleParticipant(member.userId)}
+    />
+    {member.username} {member.userId === paidByUserId && "(payer)"}
+    </label>
         ))}
-      </div>
+        </div>
 
       {error && <p>{error}</p>}
 

@@ -128,14 +128,19 @@ function GroupDetailsPage() {
 
   return (
     <div>
-      <Link to="/dashboard">← Back to dashboard</Link>
+      <Link to="/dashboard" className="back-link">
+        Back to dashboard
+      </Link>
+      <div className="page-header">
+        <h1>{group.name}</h1>
+        <div className="meta">
+          <p>Currency: {group.currency}</p>
+          <p>Owner: {group.ownerName}</p>
+          <p>Created at: {new Date(group.createdAt).toLocaleString()}</p>
+        </div>
+      </div>
 
-      <h1>{group.name}</h1>
-      <p>Currency: {group.currency}</p>
-      <p>Owner: {group.ownerName}</p>
-      <p>Created at: {new Date(group.createdAt).toLocaleString()}</p>
-
-      {error && <p>{error}</p>}
+      {error && <p className="error">{error}</p>}
 
       <section>
         <h2>Balances</h2>

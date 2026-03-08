@@ -10,9 +10,9 @@ function MemberList({ members }: MemberListProps) {
   }
 
   return (
-    <div>
+    <div className="card-list">
       {members.map((member) => (
-        <div key={member.userId}>
+        <div key={member.userId} className="card">
           <h3>{member.username}</h3>
           <p>Role: {member.role}</p>
           <p>Joined: {new Date(member.joinedAt).toLocaleString()}</p>
